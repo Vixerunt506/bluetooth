@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Turn on Bluetooth", Toast.LENGTH_SHORT).show();
                     } else {
                         // Bluetooth is enabled, proceed to Pairing activity
-                        Intent intent = new Intent(MainActivity.this, Pairing.class);
+                        Intent intent = new Intent(MainActivity.this, BLEPairing.class);
                         startActivity(intent);
                     }
                 }
