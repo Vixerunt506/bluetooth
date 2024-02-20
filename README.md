@@ -1,4 +1,5 @@
-# This Android application facilitates communication with external devices via Bluetooth, receiving and visualising data from connected devices.
+# Bluetooth Data Plotter
+This Android application facilitates communication with external devices via Bluetooth, receiving and visualising data from connected devices.
 
 ## Features:
 BLEUtils: A utility class for managing Bluetooth Low Energy (BLE) connections, scanning for nearby BLE devices, and handling data communication.
