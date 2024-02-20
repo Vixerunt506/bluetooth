@@ -1,3 +1,13 @@
+/**
+ * The BLEPairing class is responsible for managing UI and interaction related to BLE pairing and device discovery.
+ * This class utilises various functions from BLEUtils class.
+ *
+ * Functionality:
+ * - Permissions: The app requests Bluetooth and location permissions, necessary for BLE scanning and device discovery.
+ * - BLE Device Discovery: Users can initiate BLE scanning to discover nearby devices. Scanned devices are displayed in the UI.
+ * - Device Selection and Pairing: Users can select a device from the list and establish a connection with it for data communication.
+ * - Data Display: Data received is displayed from connected BLE devices in real-time.
+ */
 package com.example.bluetooth;
 
 import android.Manifest;
@@ -63,6 +73,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
 
         checkPermissions();
 
+        // Set listener for Bluetooth notifications
         BLEUtils.getInstance().setOnNotifyListener(new OnNotifyListener() {
             @Override
             public void onNotify(byte[] bytes) {
@@ -101,6 +112,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         BLEUtils.getInstance().connect(bluetoothDevice);
     }
 
+    // Check and request necessary permissions
     private void checkPermissions() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isEnabled()) {
@@ -143,7 +155,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    // Open Bluetooth dialog
+    // Open dialog to prompt user to enable Bluetooth
     private void openBlueDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Hint")
@@ -183,7 +195,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
                 .show();
     }
 
-    // Permission callback
+    // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.i(TAG, "requestCode:" + requestCode + "  ");
@@ -198,6 +210,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    // Handle actions based on granted permissions
     private void onPermissionGranted(String permission) {
         switch (permission) {
             case Manifest.permission.ACCESS_FINE_LOCATION:
@@ -227,7 +240,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         }
     }
 
-
+    // Need to request location permission to perform BLE scanning
     private boolean checkGPSIsOpen() {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager == null) {
@@ -236,6 +249,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
+    // Clean up resources when the activity is destroyed
     @Override
     protected void onDestroy() {
         super.onDestroy();

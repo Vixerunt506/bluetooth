@@ -1,3 +1,13 @@
+/**
+ * The BLEUtils class encapsulates BLE-related functionalities and provides reusable methods for BLE operations.
+ * This class serves as a centralized hub for handling various aspects of BLE communication.
+ *
+ * Functionality:
+ * - BLE Scanning: Initiate scans to discover nearby BLE devices and handle scan results.
+ * - Device Connection: Establish connections with BLE devices and manage connection state changes.
+ * - Characteristic Notification: Enable notifications for specific characteristics and handle characteristic value changes.
+ * - Error Handling: Log error messages and handle exceptions related to BLE operations.
+ */
 package com.example.bluetooth;
 
 import android.annotation.SuppressLint;
@@ -19,6 +29,10 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.bluetooth.App;
+import com.example.bluetooth.OnConnectListener;
+import com.example.bluetooth.OnNotifyListener;
+
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -26,17 +40,13 @@ public class BLEUtils {
     private static final String TAG = "BLEUtils";
     private static BLEUtils instance;
 
-//    public static final UUID UUID_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
-//    //notify
-//    public static final UUID UUID_CHAR_NOTIFY =  UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
-//    public static final UUID UUID_NOTIFY_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
+    // UUIDs for BLE service, characteristic, and descriptor
     public static final UUID UUID_SERVICE = UUID.fromString("d973f2e0-b19e-11e2-9e96-0800200c9a66");
     //notify
     public static final UUID UUID_CHAR_NOTIFY =  UUID.fromString("d973f2e1-b19e-11e2-9e96-0800200c9a66");
     public static final UUID UUID_NOTIFY_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-
+    // Singleton instance creation
     public static BLEUtils getInstance() {
         if (instance == null) {
             instance = new BLEUtils();
@@ -46,14 +56,15 @@ public class BLEUtils {
 
     private boolean isConnected = false;
 
-
     public static boolean isAndroid12() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
     }
 
+    // Callback for BLE scan results
     private ScanCallback scanCallback = null;
     private BluetoothAdapter.LeScanCallback leScanCallback = null;
 
+    // Stop an ongoing BLE scan.
     @SuppressLint("MissingPermission")
     public void stopScan() {
 
@@ -78,6 +89,11 @@ public class BLEUtils {
 
     private BluetoothGatt mBluetoothGatt;
 
+    /**
+     * Displays the discovered services and their characteristics and descriptors.
+     *
+     * @param gatt The BluetoothGatt object representing the GATT client.
+     */
     private void showServices(BluetoothGatt gatt) {
         Log.i(TAG, "gatt.getServices().size():" + gatt.getServices().size());
         for (BluetoothGattService service : gatt.getServices()) {
@@ -105,6 +121,7 @@ public class BLEUtils {
         });
     }
 
+    // Initiate a BLE scan for nearby devices.
     @SuppressLint("MissingPermission")
     public void bleScan(OnScanResult onScanResult) {
         stopScan();
@@ -132,7 +149,7 @@ public class BLEUtils {
             return false;
         }
         // Close previous connection
-        closeConn();
+        closeConnect();
         // Stop scanning
         stopScan();
         BluetoothGattCallback mBluetoothGattCallback = new BluetoothGattCallback() {
@@ -220,18 +237,21 @@ public class BLEUtils {
         return true;
     }
 
+    // Log the value of a BluetoothGattCharacteristic.
     private void showLog(String tag, BluetoothGattCharacteristic characteristic) {
 //        String msg = new String(characteristic.getValue());
         Log.e(TAG, tag + "[" + characteristic.getUuid().toString() + "]:" + Arrays.toString(characteristic.getValue()));
     }
 
+    // Log the value of a BluetoothGattDescriptor.
     private void showLog(String tag, BluetoothGattDescriptor descriptor) {
         String msg = new String(descriptor.getValue());
         Log.e(TAG, tag + "[" + descriptor.getUuid().toString() + "]:" + msg);
     }
 
+    // Close the current BluetoothGatt connection
     @SuppressLint("MissingPermission")
-    private void closeConn() {
+    private void closeConnect() {
         if (mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
@@ -241,10 +261,12 @@ public class BLEUtils {
     private OnConnectListener mOnConnectListener;
     private OnNotifyListener mOnNotifyListener;
 
+    // Callback listener for connection state changes
     public void setOnConnectListener(OnConnectListener onConnectListener) {
         mOnConnectListener = onConnectListener;
     }
 
+    // Log error message
     private void loge(String msg) {
         Log.e(TAG, msg);
     }
@@ -257,6 +279,7 @@ public class BLEUtils {
         return isConnected;
     }
 
+    // Enable notifications for specific characteristic.
     @SuppressLint("MissingPermission")
     public boolean notification() {
         BluetoothGattService service = mBluetoothGatt.getService(UUID_SERVICE);

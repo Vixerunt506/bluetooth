@@ -1,3 +1,7 @@
+/**
+ * The App class provides a global context and instance access throughout the application's lifecycle.
+ * This class ensures the app context is available for various components, such as activities, services and broadcast receivers.
+ */
 package com.example.bluetooth;
 
 import android.app.Application;
@@ -19,6 +23,4 @@ public class App extends Application {
         super.onCreate();
         app = this;
     }
-
-
 }

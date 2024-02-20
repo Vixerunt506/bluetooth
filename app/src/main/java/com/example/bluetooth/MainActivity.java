@@ -1,3 +1,8 @@
+/**
+ * The MainActivity class represents the main entry point of the Bluetooth application.
+ * This activity allows users to choose between NFC and Bluetooth for device communication.
+ * It proceeds to the BLEPairing activity upon selecting Bluetooth as the communication method.
+ */
 package com.example.bluetooth;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.bluetooth.BLEPairing;
 
 import java.util.ArrayList;
 import java.util.List;
