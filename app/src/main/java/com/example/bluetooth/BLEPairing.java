@@ -103,7 +103,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
                 String parsedData = String.format(Locale.US, "[%s Batch %d]\nV%d: %.4f V, I%d: %.2f μA\nV%d: %.4f V, I%d: %.2f μA\n\n",
                         timestamp, batch, batch*2-1, V1, batch*2-1, I1, batch*2, V2, batch*2, I2);
 
-                // Append the parsed data to your StringBuilder
+                // Append the parsed data to StringBuilder
                 receivedData.append(parsedData);
 
                 // Update the UI with the parsed and formatted data
