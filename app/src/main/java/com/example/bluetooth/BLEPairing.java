@@ -35,11 +35,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -51,6 +54,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
     private static final int REQUEST_CODE_OPEN_GPS = 1;
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
     private BLEListAdapter bleListAdapter;
+    private StringBuilder receivedData = new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +81,36 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         BLEUtils.getInstance().setOnNotifyListener(new OnNotifyListener() {
             @Override
             public void onNotify(byte[] bytes) {
+                // Parse the received data
+                if (bytes.length != 20) {
+                    Log.e(TAG, "Invalid data length");
+                    return;
+                }
+
+                ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                buffer.order(ByteOrder.LITTLE_ENDIAN); // Use Little Endian for BLE data
+
+                float V1 = buffer.getFloat();
+                float V2 = buffer.getFloat();
+                float I1 = buffer.getFloat();
+                float I2 = buffer.getFloat();
+
+                int batch = buffer.getInt();
+
+                // Format the parsed data for display
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String timestamp = sdf.format(new Date());
+                String parsedData = String.format(Locale.US, "[%s Batch %d]\nV%d: %.4f V, I%d: %.2f μA\nV%d: %.4f V, I%d: %.2f μA\n\n",
+                        timestamp, batch, batch*2-1, V1, batch*2-1, I1, batch*2, V2, batch*2, I2);
+
+                // Append the parsed data to your StringBuilder
+                receivedData.append(parsedData);
+
+                // Update the UI with the parsed and formatted data
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tv_info.setText(sdf.format(new Date()) + " :" + Arrays.toString(bytes));
+                        tv_info.setText(receivedData.toString());
                     }
                 });
             }

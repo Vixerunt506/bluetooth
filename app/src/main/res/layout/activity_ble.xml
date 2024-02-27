@@ -4,36 +4,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Get ready?"
-            android:textSize="35dp"
-            android:textColor="@color/black"
-            android:textStyle="bold|italic"
-            android:layout_marginTop="40dp"/>
-        <ImageView
-            android:layout_width="170dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:src="@drawable/bluetooth_logo" />
-        <TextView
-            android:id="@+id/tv_info"
-            android:layout_marginLeft="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_margin="20dp"
-            android:id="@+id/rv_device"
+        android:layout_height="match_parent">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-
-
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Get ready?"
+                android:textSize="35dp"
+                android:textColor="@color/black"
+                android:textStyle="bold|italic"
+                android:layout_marginTop="40dp"/>
+            <ImageView
+                android:layout_width="170dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:src="@drawable/bluetooth_logo" />
+            <TextView
+                android:id="@+id/tv_info"
+                android:layout_marginLeft="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_margin="20dp"
+                android:id="@+id/rv_device"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
