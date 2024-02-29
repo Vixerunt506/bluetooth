@@ -1,85 +1,137 @@
 /**
- * Not developed yet.
- * This Visualisation class is responsible for displaying data in a graphical format using AndroidPlot library.
- * This is a tutorial example copied from https://halfhp.github.io/androidplot/docs/quickstart.html
+ * Developing
+ * This Visualisation class is responsible for displaying data in a graphical format using MPAndroidChart library.
  */
 package com.example.bluetooth;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.LinearLayout;
 
-import com.androidplot.util.PixelUtils;
-import com.androidplot.xy.CatmullRomInterpolator;
-import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYGraphWidget;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Visualisation extends Activity {
-    private XYPlot plot;
+    private LineChart lineChart;
+    private HashMap<Integer, String> batchData;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.visualisation);
+        lineChart = findViewById(R.id.chart);
 
-        // initialize our XYPlot reference:
-        plot = (XYPlot) findViewById(R.id.plot);
+        // Get the data from Intent
+        Intent intent = getIntent();
+        if (intent == null) {
+            Log.e("Visualisation", "Intent is null");
+            return;
+        }
 
-        // create a couple arrays of y-values to plot:
-        final Number[] domainLabels = {1, 2, 3, 6, 7, 8, 9, 10, 13, 14};
-        Number[] series1Numbers = {1, 4, 2, 8, 4, 16, 8, 32, 16, 64};
-        Number[] series2Numbers = {5, 2, 10, 5, 20, 10, 40, 20, 80, 40};
+        batchData = (HashMap<Integer, String>) intent.getSerializableExtra("batchData");
 
-        // turn the above arrays into XYSeries':
-        // (Y_VALS_ONLY means use the element index as the x value)
-        XYSeries series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series1");
-        XYSeries series2 = new SimpleXYSeries(
-                Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series2");
+        // Update the LineChart with the batch data
+        updateLineChart();
+    }
 
-        // configure formatters to use for drawing a series using LineAndPointRenderer
-        LineAndPointFormatter series1Format = new LineAndPointFormatter(Color.RED, Color.GREEN, Color.BLUE, null);
-        LineAndPointFormatter series2Format = new LineAndPointFormatter(Color.RED, Color.GREEN, Color.BLUE, null);
+    private void updateLineChart() {
+        // Create an ArrayList of ILineDataSet for holding multiple LineDataSets
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
-        // add an "dash" effect to the series2 line:
-        series2Format.getLinePaint().setPathEffect(new DashPathEffect(new float[] {
-
-                // always use DP when specifying pixel sizes, to keep things consistent across devices:
-                PixelUtils.dpToPix(20),
-                PixelUtils.dpToPix(15)}, 0));
-
-        // just for fun, add some smoothing to the lines:
-        // see: http://androidplot.com/smooth-curves-and-androidplot/
-        series1Format.setInterpolationParams(
-                new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
-
-        series2Format.setInterpolationParams(
-                new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
-
-        // add a new series' to the xyplot:
-        plot.addSeries(series1, series1Format);
-        plot.addSeries(series2, series2Format);
-
-        plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
-            @Override
-            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-                int i = Math.round(((Number) obj).floatValue());
-                return toAppendTo.append(domainLabels[i]);
+        for (Integer batch : batchData.keySet()) {
+            String parsedData = batchData.get(batch);
+            if (parsedData == null) {
+                Log.e("Visualisation", "No data found for batch " + batch);
+                continue;
             }
-            @Override
-            public Object parseObject(String source, ParsePosition pos) {
-                return null;
+
+            String[] lines = parsedData.split("\n");
+            ArrayList<Entry> entries = new ArrayList<>();
+            for (String line : lines) {
+                String[] parts = line.split(", ");
+                if (parts.length != 2) {
+                    Log.e("Visualisation", "Invalid data format: " + line);
+                    continue;
+                }
+
+                String[] values = parts[1].split(": ");
+                if (values.length != 2) {
+                    Log.e("Visualisation", "Invalid value format: " + parts[1]);
+                    continue;
+                }
+
+                try {
+                    float x = Float.parseFloat(values[0].replace("μA", ""));
+                    float y = Float.parseFloat(values[1].replace("V", ""));
+                    entries.add(new Entry(x, y));
+                } catch (NumberFormatException e) {
+                    Log.e("Visualisation", "NumberFormatException: " + e.getMessage());
+                }
             }
-        });
+
+            // A LineDataSet for this batch
+            LineDataSet dataSet = new LineDataSet(entries, "Batch " + batch);
+            dataSet.setLineWidth(2f);
+            dataSet.setCircleRadius(4f);
+            dataSet.setDrawValues(false); // Disable drawing values on data points
+
+            // Add LineDataSet to the ArrayList of dataSets
+            dataSets.add(dataSet);
+        }
+
+        // A LineData object from the dataSets
+        LineData lineData = new LineData(dataSets);
+
+        // Set up the LineChart
+        lineChart.setData(lineData);
+        lineChart.getDescription().setEnabled(false);
+        lineChart.setTouchEnabled(true);
+        lineChart.setDragEnabled(true);
+        lineChart.setScaleEnabled(true);
+        lineChart.setPinchZoom(true);
+        lineChart.setDrawGridBackground(false);
+        lineChart.setBackgroundColor(Color.WHITE);
+
+        // Legend
+        Legend legend = lineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextSize(11f);
+        legend.setTextColor(Color.BLACK);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setDrawInside(false);
+
+        // X-axis
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setTextSize(11f);
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setDrawGridLines(true);
+        xAxis.setDrawAxisLine(true);
+
+        // Y-axis
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setTextSize(11f);
+        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setDrawAxisLine(true);
+
+        YAxis rightAxis = lineChart.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        // Refresh the chart
+        lineChart.invalidate();
     }
 }

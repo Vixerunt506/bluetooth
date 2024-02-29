@@ -27,6 +27,9 @@
             android:name=".BLEPairing"
             android:exported="false" />
         <activity
+            android:name=".Visualisation"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

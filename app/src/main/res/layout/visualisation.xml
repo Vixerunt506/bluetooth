@@ -4,14 +4,9 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <com.androidplot.xy.XYPlot
-        style="@style/APDefacto.Dark"
-        android:id="@+id/plot"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        ap:title="A Simple XY Plot"
-        ap:rangeTitle="range"
-        ap:domainTitle="domain"
-        ap:lineLabels="left|bottom"
-        ap:lineLabelRotationBottom="-45"/>
+    <com.github.mikephil.charting.charts.LineChart
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:id="@+id/chart" />
+
 </LinearLayout>
