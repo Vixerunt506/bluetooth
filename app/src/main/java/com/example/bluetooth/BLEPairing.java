@@ -79,6 +79,8 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
         checkPermissions();
 
         HashMap<Integer, String> batchData = new HashMap<>();
+        final int[] batchCount = {0};
+
         // Set listener for Bluetooth notifications
         BLEUtils.getInstance().setOnNotifyListener(new OnNotifyListener() {
             @Override
@@ -99,6 +101,8 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
 
                 int batch = buffer.getInt();
 
+                List<Integer> timeList = Arrays.asList(3,4,5,6,7,8,9,10,11,12,13,14);
+
                 if (!batchData.containsKey(batch)) {
                     // Format the parsed data for display
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -118,9 +122,17 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
                             tv_info.setText(receivedData.toString());
                         }
                     });
-//                    Intent intent = new Intent(BLEPairing.this, Visualisation.class);
-//                    intent.putExtra("data", receivedData.toString());
-//                    startActivity(intent);
+
+                    // Increment the batch count
+                    batchCount[0]++;
+
+                    // Start the DataVisualisation activity after receiving the sixth batch
+                    if (batchCount[0] == 6) {
+                        Intent intent = new Intent(BLEPairing.this, Visualisation.class);
+                        intent.putExtra("batchData", batchData);
+                        intent.putExtra("timeList", new ArrayList<>(timeList));
+                        startActivity(intent);
+                    }
                 }
             }
         });

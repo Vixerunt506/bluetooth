@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="plot_array">
+        <item>Voltage-time Graph</item>
+        <item>Current-time Graph</item>
+    </array>
+</resources>

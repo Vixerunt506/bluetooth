@@ -1,137 +1,112 @@
 /**
- * Developing
- * This Visualisation class is responsible for displaying data in a graphical format using MPAndroidChart library.
+ * This Visualisation class is responsible for displaying data in a graphical format.
+ * It utilizes the LineGraphView to visualize the data in either Voltage (Vt) or Current (It) plots.
  */
 package com.example.bluetooth;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.LinearLayout;
-
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Visualisation extends Activity {
-    private LineChart lineChart;
+    private TextView textView;
     private HashMap<Integer, String> batchData;
+    private ArrayList<Integer> timeList;
+    private Spinner spinner;
+    private LineGraphView lineGraphView;
+    private FrameLayout chartContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.visualisation);
-        lineChart = findViewById(R.id.chart);
+        textView = findViewById(R.id.text);
+        spinner = findViewById(R.id.spinner);
+        chartContainer = findViewById(R.id.chartContainer);
 
-        // Get the data from Intent
         Intent intent = getIntent();
         if (intent == null) {
             Log.e("Visualisation", "Intent is null");
             return;
         }
 
+        // Retrieve batch data and time list from Intent
         batchData = (HashMap<Integer, String>) intent.getSerializableExtra("batchData");
+        timeList = (ArrayList<Integer>) intent.getSerializableExtra("timeList");
 
-        // Update the LineChart with the batch data
-        updateLineChart();
+        // Set up the spinner for selecting plot type
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.plot_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        // Spinner item selection listener
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        // Display Vt plot
+                        displayData(true);
+                        break;
+                    case 1:
+                        // Display It plot
+                        displayData(false);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
     }
 
-    private void updateLineChart() {
-        // Create an ArrayList of ILineDataSet for holding multiple LineDataSets
-        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+    private void displayData(boolean isVtPlot) {
+        ArrayList<Float> voltageList = new ArrayList<>();
+        ArrayList<Float> currentList = new ArrayList<>();
 
-        for (Integer batch : batchData.keySet()) {
-            String parsedData = batchData.get(batch);
-            if (parsedData == null) {
-                Log.e("Visualisation", "No data found for batch " + batch);
-                continue;
-            }
-
-            String[] lines = parsedData.split("\n");
-            ArrayList<Entry> entries = new ArrayList<>();
-            for (String line : lines) {
-                String[] parts = line.split(", ");
-                if (parts.length != 2) {
-                    Log.e("Visualisation", "Invalid data format: " + line);
-                    continue;
-                }
-
-                String[] values = parts[1].split(": ");
-                if (values.length != 2) {
-                    Log.e("Visualisation", "Invalid value format: " + parts[1]);
-                    continue;
-                }
-
+        // Parse the batch data to extract voltage and current values
+        for (String data : batchData.values()) {
+            Pattern pattern = Pattern.compile("V\\d+: (.*?) V, I\\d+: (.*?) μA");
+            Matcher matcher = pattern.matcher(data);
+            while (matcher.find()) {
                 try {
-                    float x = Float.parseFloat(values[0].replace("μA", ""));
-                    float y = Float.parseFloat(values[1].replace("V", ""));
-                    entries.add(new Entry(x, y));
+                    float voltage = Float.parseFloat(matcher.group(1));
+                    float current = Float.parseFloat(matcher.group(2));
+
+                    voltageList.add(voltage);
+                    currentList.add(current);
+
                 } catch (NumberFormatException e) {
-                    Log.e("Visualisation", "NumberFormatException: " + e.getMessage());
+                    Log.e("Visualisation", "Error parsing voltage or current", e);
                 }
             }
-
-            // A LineDataSet for this batch
-            LineDataSet dataSet = new LineDataSet(entries, "Batch " + batch);
-            dataSet.setLineWidth(2f);
-            dataSet.setCircleRadius(4f);
-            dataSet.setDrawValues(false); // Disable drawing values on data points
-
-            // Add LineDataSet to the ArrayList of dataSets
-            dataSets.add(dataSet);
         }
 
-        // A LineData object from the dataSets
-        LineData lineData = new LineData(dataSets);
-
-        // Set up the LineChart
-        lineChart.setData(lineData);
-        lineChart.getDescription().setEnabled(false);
-        lineChart.setTouchEnabled(true);
-        lineChart.setDragEnabled(true);
-        lineChart.setScaleEnabled(true);
-        lineChart.setPinchZoom(true);
-        lineChart.setDrawGridBackground(false);
-        lineChart.setBackgroundColor(Color.WHITE);
-
-        // Legend
-        Legend legend = lineChart.getLegend();
-        legend.setForm(Legend.LegendForm.LINE);
-        legend.setTextSize(11f);
-        legend.setTextColor(Color.BLACK);
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
-        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        legend.setDrawInside(false);
-
-        // X-axis
-        XAxis xAxis = lineChart.getXAxis();
-        xAxis.setTextSize(11f);
-        xAxis.setTextColor(Color.BLACK);
-        xAxis.setDrawGridLines(true);
-        xAxis.setDrawAxisLine(true);
-
-        // Y-axis
-        YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setTextSize(11f);
-        leftAxis.setTextColor(Color.BLACK);
-        leftAxis.setDrawGridLines(true);
-        leftAxis.setDrawAxisLine(true);
-
-        YAxis rightAxis = lineChart.getAxisRight();
-        rightAxis.setEnabled(false);
-
-        // Refresh the chart
-        lineChart.invalidate();
+        if (isVtPlot) {
+            lineGraphView = new LineGraphView(this, voltageList, timeList, true);
+        } else {
+            lineGraphView = new LineGraphView(this, currentList, timeList, false);
+        }
+        // Clear existing views in chart container and add the LineGraphView
+        // If not, the lineGraphView will override the original layout including spinner
+        chartContainer.removeAllViews();
+        chartContainer.addView(lineGraphView);
     }
 }
+
+
