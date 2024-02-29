@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,6 +78,7 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
 
         checkPermissions();
 
+        HashMap<Integer, String> batchData = new HashMap<>();
         // Set listener for Bluetooth notifications
         BLEUtils.getInstance().setOnNotifyListener(new OnNotifyListener() {
             @Override
@@ -97,22 +99,29 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
 
                 int batch = buffer.getInt();
 
-                // Format the parsed data for display
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String timestamp = sdf.format(new Date());
-                String parsedData = String.format(Locale.US, "[%s Batch %d]\nV%d: %.4f V, I%d: %.2f μA\nV%d: %.4f V, I%d: %.2f μA\n\n",
-                        timestamp, batch, batch*2-1, V1, batch*2-1, I1, batch*2, V2, batch*2, I2);
+                if (!batchData.containsKey(batch)) {
+                    // Format the parsed data for display
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String timestamp = sdf.format(new Date());
+                    String parsedData = String.format(Locale.US, "[%s Batch %d]\nV%d: %.4f V, I%d: %.2f μA\nV%d: %.4f V, I%d: %.2f μA\n\n",
+                            timestamp, batch, batch*2-1, V1, batch*2-1, I1, batch*2, V2, batch*2, I2);
+                    // Store the parsed data in the HashMap
+                    batchData.put(batch, parsedData);
 
-                // Append the parsed data to StringBuilder
-                receivedData.append(parsedData);
+                    // Append the parsed data to StringBuilder
+                    receivedData.append(parsedData);
 
-                // Update the UI with the parsed and formatted data
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tv_info.setText(receivedData.toString());
-                    }
-                });
+                    // Update the UI with the parsed and formatted data
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_info.setText(receivedData.toString());
+                        }
+                    });
+//                    Intent intent = new Intent(BLEPairing.this, Visualisation.class);
+//                    intent.putExtra("data", receivedData.toString());
+//                    startActivity(intent);
+                }
             }
         });
     }
