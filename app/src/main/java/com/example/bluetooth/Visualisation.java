@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 public class Visualisation extends Activity {
     private TextView textView;
     private HashMap<Integer, String> batchData;
-    private ArrayList<Integer> timeList;
     private Spinner spinner;
     private LineGraphView lineGraphView;
     private FrameLayout chartContainer;
@@ -44,7 +43,7 @@ public class Visualisation extends Activity {
 
         // Retrieve batch data and time list from Intent
         batchData = (HashMap<Integer, String>) intent.getSerializableExtra("batchData");
-        timeList = (ArrayList<Integer>) intent.getSerializableExtra("timeList");
+        Log.d("Plotting", "batchData: " + batchData.toString());
 
         // Set up the spinner for selecting plot type
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -78,18 +77,21 @@ public class Visualisation extends Activity {
     private void displayData(boolean isVtPlot) {
         ArrayList<Float> voltageList = new ArrayList<>();
         ArrayList<Float> currentList = new ArrayList<>();
+        ArrayList<Float> timeList = new ArrayList<>();
 
         // Parse the batch data to extract voltage and current values
         for (String data : batchData.values()) {
-            Pattern pattern = Pattern.compile("V\\d+: (.*?) V, I\\d+: (.*?) μA");
+            Pattern pattern = Pattern.compile("V: (.*?) V, I: (.*?) μA, t: (.*?) s");
             Matcher matcher = pattern.matcher(data);
             while (matcher.find()) {
                 try {
                     float voltage = Float.parseFloat(matcher.group(1));
                     float current = Float.parseFloat(matcher.group(2));
+                    float time = Float.parseFloat(matcher.group(3));
 
                     voltageList.add(voltage);
                     currentList.add(current);
+                    timeList.add(time);
 
                 } catch (NumberFormatException e) {
                     Log.e("Visualisation", "Error parsing voltage or current", e);
@@ -98,6 +100,8 @@ public class Visualisation extends Activity {
         }
 
         if (isVtPlot) {
+            Log.d("Plotting", "Voltage List: " + voltageList.toString());
+            Log.d("Plotting", "Time List: " + timeList.toString());
             lineGraphView = new LineGraphView(this, voltageList, timeList, true);
         } else {
             lineGraphView = new LineGraphView(this, currentList, timeList, false);

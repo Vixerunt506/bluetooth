@@ -8,6 +8,8 @@ import android.content.Context;
 import android.graphics.Color;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -18,10 +20,10 @@ import java.util.List;
 
 public class LineGraphView extends LineChart {
     private ArrayList<Float> yList;
-    private ArrayList<Integer> xList;
+    private ArrayList<Float> xList;
     private boolean isVtPlot;
 
-    public LineGraphView(Context context, ArrayList<Float> yList, ArrayList<Integer> xList, boolean isVtPlot) {
+    public LineGraphView(Context context, ArrayList<Float> yList, ArrayList<Float> xList, boolean isVtPlot) {
         super(context);
         this.yList = yList;
         this.xList = xList;
@@ -56,6 +58,8 @@ public class LineGraphView extends LineChart {
         });
 
         this.setExtraOffsets(10f, 10f, 10f, 10f);
+        this.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        this.getLegend().setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         this.getDescription().setEnabled(false);
 
         LineData lineData = new LineData(dataSet);

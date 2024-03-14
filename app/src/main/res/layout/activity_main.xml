@@ -15,7 +15,15 @@
         android:background="#682E2A2A"
         android:visibility="gone" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleTextColor="#000000">
+    </androidx.appcompat.widget.Toolbar>
+
     <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -26,19 +34,19 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="10dp"
-                android:src="@mipmap/ic_launcher" />
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginBottom="50dp"
+                android:src="@drawable/line_graph" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_gravity="left"
-                android:layout_margin="20dp"
-                android:text="Connection method:"
-                android:textSize="22dp" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentLeft="true"-->
+<!--                android:layout_gravity="left"-->
+<!--                android:layout_margin="20dp"-->
+<!--                android:text="Connection method:"-->
+<!--                android:textSize="22dp" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,23 +54,32 @@
                 android:orientation="horizontal"
                 android:layout_margin="10dp">
 
-                <Spinner
-                    android:id="@+id/mainactivity_sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_weight="15" />
+<!--                <Spinner-->
+<!--                    android:id="@+id/mainactivity_sp"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:layout_weight="15" />-->
 
                 <Button
                     android:id="@+id/mainactivity_bt"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_weight="1"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginLeft="50dp"
                     android:background="@drawable/shape_button"
                     android:text="Connect"
                     android:textAllCaps="false"
-                    android:textSize="15dp" />
+                    android:textSize="20dp" />
             </LinearLayout>
         </LinearLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            app:menu="@menu/nav_menu" />
     </androidx.drawerlayout.widget.DrawerLayout>
 
 </LinearLayout>

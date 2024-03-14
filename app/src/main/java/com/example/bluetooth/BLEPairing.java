@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,8 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
     private BLEListAdapter bleListAdapter;
     private StringBuilder receivedData = new StringBuilder();
+    private LineGraphView lineGraphView;
+    private FrameLayout chartContainer_1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +83,16 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
 
         HashMap<Integer, String> batchData = new HashMap<>();
         final int[] batchCount = {0};
+        ArrayList<Float> VList = new ArrayList<>();
+        ArrayList<Float> IList = new ArrayList<>();
+        ArrayList<Float> tList = new ArrayList<>();
 
         // Set listener for Bluetooth notifications
         BLEUtils.getInstance().setOnNotifyListener(new OnNotifyListener() {
             @Override
             public void onNotify(byte[] bytes) {
                 // Parse the received data
-                if (bytes.length != 20) {
+                if (bytes.length != 16) {
                     Log.e(TAG, "Invalid data length");
                     return;
                 }
@@ -94,21 +100,18 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
                 ByteBuffer buffer = ByteBuffer.wrap(bytes);
                 buffer.order(ByteOrder.LITTLE_ENDIAN); // Use Little Endian for BLE data
 
-                float V1 = buffer.getFloat();
-                float V2 = buffer.getFloat();
-                float I1 = buffer.getFloat();
-                float I2 = buffer.getFloat();
+                float V = buffer.getFloat();
+                float I = buffer.getFloat();
+                float t = buffer.getFloat();
 
                 int batch = buffer.getInt();
-
-                List<Integer> timeList = Arrays.asList(3,4,5,6,7,8,9,10,11,12,13,14);
 
                 if (!batchData.containsKey(batch)) {
                     // Format the parsed data for display
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String timestamp = sdf.format(new Date());
-                    String parsedData = String.format(Locale.US, "[%s Batch %d]\nV%d: %.4f V, I%d: %.2f μA\nV%d: %.4f V, I%d: %.2f μA\n\n",
-                            timestamp, batch, batch*2-1, V1, batch*2-1, I1, batch*2, V2, batch*2, I2);
+                    String parsedData = String.format(Locale.US, "[%s Batch %d]\nV: %.4f V, I: %.2f μA, t: %.1f s\n\n",
+                            timestamp, batch, V, I, t);
                     // Store the parsed data in the HashMap
                     batchData.put(batch, parsedData);
 
@@ -116,21 +119,37 @@ public class BLEPairing extends AppCompatActivity implements SwipeRefreshLayout.
                     receivedData.append(parsedData);
 
                     // Update the UI with the parsed and formatted data
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tv_info.setText(receivedData.toString());
-                        }
-                    });
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            tv_info.setText(receivedData.toString());
+//                        }
+//                    });
+
+//                    // Add data to lists
+//                    VList.add(V);
+//                    IList.add(I);
+//                    tList.add(t);
+//
+//                    // Update the UI with the parsed and formatted data
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            tv_info.setText(receivedData.toString());
+//                            // Update your LineGraphView here
+//                            lineGraphView = new LineGraphView(this, VList, tList, true);
+//                            chartContainer_1.removeAllViews();
+//                            chartContainer_1.addView(lineGraphView);
+//                        }
+//                    });
 
                     // Increment the batch count
                     batchCount[0]++;
 
                     // Start the DataVisualisation activity after receiving the sixth batch
-                    if (batchCount[0] == 6) {
+                    if (batchCount[0] == 12) {
                         Intent intent = new Intent(BLEPairing.this, Visualisation.class);
                         intent.putExtra("batchData", batchData);
-                        intent.putExtra("timeList", new ArrayList<>(timeList));
                         startActivity(intent);
                     }
                 }

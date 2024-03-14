@@ -9,8 +9,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".App"
@@ -23,6 +23,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Bluetooth"
         tools:targetApi="31">
+        <activity
+            android:name=".fragment.FAQ"
+            android:exported="false" />
+        <activity
+            android:name=".fragment.GetInTouch"
+            android:exported="false" />
         <activity
             android:name=".BLEPairing"
             android:exported="false" />
