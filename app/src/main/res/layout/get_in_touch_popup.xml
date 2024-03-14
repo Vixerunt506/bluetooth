@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_margin="20dp"
+    android:background="@android:color/white">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submitted Successful!"
+        android:textSize="35dp"
+        android:textColor="@color/black"
+        android:textStyle="bold|italic"
+        android:layout_marginBottom="20dp" />
+
+    <ImageView
+        android:layout_margin="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/submitted" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="We will get in touch with you within 2 working days."
+        android:textSize="23dp"
+        android:layout_margin="18dp" />
+    <Button
+        android:id="@+id/popup03"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textColor="#2196F3"
+        android:background="@android:color/transparent"
+        android:textSize="15dp" />
+</LinearLayout>
