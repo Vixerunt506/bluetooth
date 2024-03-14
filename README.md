@@ -1,4 +1,4 @@
-# Bluetooth Data Plotter
+# Bluetooth Data Plotter(Developing)
 This Android application facilitates communication with external devices via Bluetooth, receiving and visualising data from connected devices.
 
 ## Features:
@@ -7,4 +7,5 @@ This Android application facilitates communication with external devices via Blu
 **BLEPairing**: An activity for discovering nearby Bluetooth devices, selecting a device for pairing, establishing a connection for data transfer and displaying parsed data after a successful connection.  
 **BLEListAdapter**: A RecyclerView adapter for displaying a list of discovered Bluetooth devices.  
 **BLEViewHolder**: ViewHolder class for representing individual items in the Bluetooth device list.  
-**Visualisation(Developing)**: An activity for visualising data with MPAndroidChart library.  
+**Visualisation**: An activity for visualising data with the MPAndroidChart library.  
+**LineGraphView**: A custom view to create a line graph with customisable features such as different colours for lines and text, along with custom axis labels.
